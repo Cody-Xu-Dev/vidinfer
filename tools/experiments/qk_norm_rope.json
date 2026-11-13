@@ -1,0 +1,7 @@
+{
+  "operation": "qk_norm_rope",
+  "source": {"kind": "synthetic", "seed": 42, "batch": 1, "length": 1024, "heads": 8, "head_dim": 128},
+  "reference": "torch", "candidates": ["torch", "cuda_w4", "cuda_w8"],
+  "mode": "exact", "atol": 0, "rtol": 0,
+  "warmup": 3, "cycles": 2
+}

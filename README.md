@@ -108,6 +108,7 @@ QK 自定义 Kernel 专用于 D=128、RoPE=96、half-split；保留参考路径�
 
 ## 阅读与验证
 
+- [统一实验工具](docs/统一实验工具.md)：用同一配置协议比较 Attention、SwiGLU、QK Norm＋RoPE，输出 JSON/Markdown/离线 HTML。
 - [代码阅读导图](docs/代码阅读导图.md)：按对象、请求、模型、设备的顺序阅读，主要实现附中文注释。
 - [验证范围](docs/validation.md)：区分已完成验证与未覆盖能力。
 - [优化边界](docs/optimizations.md)：每项优化的位置、适用条件与组合方式。

@@ -1,0 +1,8 @@
+{
+  "operation": "attention",
+  "source": {"kind": "synthetic", "seed": 42, "batch": 1, "length": 1024, "heads": 8, "head_dim": 128},
+  "reference": "flash_view",
+  "candidates": ["flash_view", "flash_contiguous", "cudnn_view", "cudnn_contiguous"],
+  "mode": "allclose", "atol": 0.001, "rtol": 0.01,
+  "warmup": 3, "cycles": 3
+}

@@ -27,7 +27,32 @@ def main():
     generate.add_argument("--text-gpu-gib", type=int, default=40)
     generate.add_argument("--text-cpu-gib", type=int, default=4)
     sub.add_parser("doctor", help="Print installed runtime and GPU versions")
+    experiment = sub.add_parser(
+        "experiment",
+        help="Compare operators on identical inputs; write JSON/Markdown/HTML",
+    )
+    experiment.add_argument("--config", type=Path, required=True)
+    experiment.add_argument("--workspace", type=Path, required=True)
+    report = sub.add_parser(
+        "report", help="Render an existing experiment JSON without loading Torch"
+    )
+    report.add_argument("results", type=Path)
+    report.add_argument("--output", type=Path)
     args = parser.parse_args()
+    if args.command == "experiment":
+        from .experiments.runner import run_experiment
+
+        folder = run_experiment(args.config, args.workspace)
+        print(json.dumps({"report_directory": str(folder)}, ensure_ascii=False))
+        return
+    if args.command == "report":
+        from .experiments.report import write_reports
+
+        data = json.loads(args.results.read_text(encoding="utf-8-sig"))
+        folder = args.output or args.results.parent
+        write_reports(data, folder)
+        print(str(folder.resolve() / "report.html"))
+        return
     if args.command == "doctor":
         import torch
         import importlib.metadata

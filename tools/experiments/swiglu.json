@@ -1,0 +1,7 @@
+{
+  "operation": "swiglu",
+  "source": {"kind": "synthetic", "seed": 42, "rows": 1024, "width": 8192},
+  "reference": "torch", "candidates": ["torch", "cuda"],
+  "mode": "exact", "atol": 0, "rtol": 0,
+  "warmup": 3, "cycles": 3
+}
