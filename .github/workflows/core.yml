@@ -1,0 +1,27 @@
+name: Core and packaging
+on: [push, pull_request]
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python: ['3.11', '3.12', '3.13']
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '${{ matrix.python }}'
+      - run: python -m pip install . numpy build
+      - run: python -m unittest discover -s tests -v
+      - run: python -m build --wheel
+      - name: Verify bundled CUDA sources
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          from zipfile import ZipFile
+          with ZipFile(next(Path('dist').glob('*.whl'))) as package:
+              for name in ('qk_norm_rope.cpp', 'qk_norm_rope.cu', 'swiglu_cuda.cpp', 'swiglu_cuda.cu'):
+                  assert 'vidinfer/kernels/' + name in package.namelist()
+          PY

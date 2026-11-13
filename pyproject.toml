@@ -1,0 +1,30 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "vidinfer-lab"
+version = "0.2.0"
+requires-python = ">=3.11"
+description = "Model/plan/request boundaries for a small video-inference runtime"
+readme = "README.md"
+
+[project.urls]
+Repository = "https://github.com/Cody-Xu-Dev/vidinfer"
+Issues = "https://github.com/Cody-Xu-Dev/vidinfer/issues"
+
+[project.optional-dependencies]
+cuda = ["torch==2.10.0", "torchvision==0.25.0", "diffusers==0.41.0", "transformers==5.20.0", "accelerate==1.13.0", "safetensors==0.8.0", "numpy>=1.26,<3", "pillow==11.3.0", "jinja2==3.1.6", "einops==0.8.2", "ninja"]
+
+[project.scripts]
+vidinfer = "vidinfer.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+"vidinfer.kernels" = ["*.cpp", "*.cu"]
+
+[tool.ruff]
+target-version = "py311"
+extend-exclude = ["integration", "validation"]
