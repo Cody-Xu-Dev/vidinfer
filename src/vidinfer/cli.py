@@ -38,7 +38,42 @@ def main():
     )
     report.add_argument("results", type=Path)
     report.add_argument("--output", type=Path)
+    analyze = sub.add_parser(
+        "analyze",
+        help="Analyze a Chrome GPU trace and render inference HTML (no Torch needed)",
+    )
+    analyze.add_argument("--trace", type=Path, required=True)
+    analyze.add_argument("--summary", type=Path)
+    analyze.add_argument("--scope", default="unspecified")
+    analyze.add_argument("--output", type=Path, required=True)
+    workflow = sub.add_parser(
+        "workflow",
+        help="Bundle inference, experiments, and evidence into an offline HTML index",
+    )
+    workflow.add_argument("--manifest", type=Path, required=True)
+    workflow.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
+    if args.command == "analyze":
+        from .reporting.analysis import analyze_trace
+        from .reporting.render import write_inference
+
+        reserved = {
+            args.output.resolve() / name
+            for name in ("analysis.json", "report.html", "report.md")
+        }
+        if args.trace.resolve() in reserved or (
+            args.summary and args.summary.resolve() in reserved
+        ):
+            parser.error("Report output would overwrite an input file")
+        data = analyze_trace(args.trace, summary_path=args.summary, scope=args.scope)
+        write_inference(data, args.output)
+        print(str(args.output.resolve() / "report.html"))
+        return
+    if args.command == "workflow":
+        from .reporting.workflow import build_workflow
+
+        print(str(build_workflow(args.manifest, args.output) / "index.html"))
+        return
     if args.command == "experiment":
         from .experiments.runner import run_experiment
 
@@ -46,11 +81,16 @@ def main():
         print(json.dumps({"report_directory": str(folder)}, ensure_ascii=False))
         return
     if args.command == "report":
-        from .experiments.report import write_reports
-
         data = json.loads(args.results.read_text(encoding="utf-8-sig"))
         folder = args.output or args.results.parent
-        write_reports(data, folder)
+        if data.get("report_type") == "inference":
+            from .reporting.render import write_inference
+
+            write_inference(data, folder)
+        else:
+            from .experiments.report import write_reports
+
+            write_reports(data, folder)
         print(str(folder.resolve() / "report.html"))
         return
     if args.command == "doctor":

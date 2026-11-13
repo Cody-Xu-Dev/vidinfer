@@ -24,4 +24,6 @@ jobs:
           with ZipFile(next(Path('dist').glob('*.whl'))) as package:
               for name in ('qk_norm_rope.cpp', 'qk_norm_rope.cu', 'swiglu_cuda.cpp', 'swiglu_cuda.cu'):
                   assert 'vidinfer/kernels/' + name in package.namelist()
+              for name in ('base.html', 'inference.html', 'optimization.html', 'index.html', 'style.css', 'interactive.js'):
+                  assert 'vidinfer/reporting/templates/' + name in package.namelist()
           PY

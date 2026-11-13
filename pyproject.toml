@@ -24,6 +24,7 @@ where = ["src"]
 
 [tool.setuptools.package-data]
 "vidinfer.kernels" = ["*.cpp", "*.cu"]
+"vidinfer.reporting" = ["templates/*.html", "templates/*.css", "templates/*.js"]
 
 [tool.ruff]
 target-version = "py311"

@@ -1,0 +1,19 @@
+{
+  "example_only": true,
+  "gpu": "DEMO · 示例，非真实设备",
+  "phases": {
+    "load_weights": {
+      "wall_s": 2
+    },
+    "denoise": {
+      "wall_s": 0.02
+    }
+  },
+  "forwards": [
+    {
+      "index": 1,
+      "gpu_ms": 10,
+      "profiled": true
+    }
+  ]
+}

@@ -1,6 +1,5 @@
 """第四层：只读实验数据生成报告，不导入 Torch，不启动 GPU。"""
 
-from html import escape
 import json
 from pathlib import Path
 
@@ -106,35 +105,9 @@ def render_markdown(report):
 
 
 def render_html(report):
-    spec = report["spec"]
-    headers = "".join(f"<th>{escape(label)}</th>" for label in HEADERS)
-    rows = "".join(
-        "<tr>" + "".join(f"<td>{escape(str(value))}</td>" for value in row) + "</tr>"
-        for row in _rows(report)
-    )
-    notes = "".join(
-        f"<li>{escape(warning)}</li>" for warning in report.get("warnings", [])
-    )
-    details = ""
-    for name, item in report.get("candidates", {}).items():
-        details += (
-            f"<details><summary>{escape(name)} · 误差、计时原始样本与显存</summary>"
-            f"<pre>{escape(json.dumps(item, indent=2, ensure_ascii=False, allow_nan=False))}</pre></details>"
-        )
-    payload = escape(json.dumps(report, indent=2, ensure_ascii=False, allow_nan=False))
-    title = escape(spec["operation"])
-    # 所有外部文本先 HTML 转义；报告无需联网、JS、字体或第三方库。
-    return f"""<!doctype html>
-<html lang="zh-CN"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>VidInfer · {title}</title>
-<style>body{{font:16px/1.65 system-ui,sans-serif;margin:36px auto;padding:0 24px;max-width:1280px;background:#f6f7fb;color:#182435}}h1{{margin-bottom:0}}.muted{{color:#526078}}section,details{{background:white;border:1px solid #d8dfeb;border-radius:12px;padding:20px;margin:20px 0}}.table{{overflow:auto}}table{{border-collapse:collapse;width:100%;white-space:nowrap}}th,td{{text-align:left;padding:12px;border-bottom:1px solid #e3e8f0}}pre{{white-space:pre-wrap;overflow-wrap:anywhere;font-size:13px}}summary{{cursor:pointer;font-weight:600}}code{{background:#eef1f7;padding:2px 5px}}a{{color:#075dcc}}</style>
-<h1>VidInfer · {title}</h1><p class="muted">统一单算子实验报告 · schema 1 · {escape(report["created_at"])}</p>
-<section><b>整轮完成：{report["completed"]}</b> · 参考 <code>{escape(spec["reference"])}</code> · 输入来源 <code>{escape(report.get("input", {}).get("kind", spec["source"].get("kind", "synthetic")))}</code>
-<p>{escape(report.get("contract", "准备阶段尚未完成"))}</p><p>验收 {escape(spec["mode"])} · atol={spec["atol"]} · rtol={spec["rtol"]}</p></section>
-<section class="table"><table><thead><tr>{headers}</tr></thead><tbody>{rows}</tbody></table>
-<p class="muted">PASS 是指定参考下的数值验收；倍数小于 1 表示更慢。错误或未完成项不能参与结论。</p></section>
-<section><h2>如何读这张表</h2><p>先检查数值，再比较 Event 与同步 Wall，最后结合显存。输入加载、H2D、首次编译与误差检查不计入稳态时间；调用内部的布局转换、输出分配和整理计入。P90 是当前微基准样本分位数。</p><ul>{notes}</ul><p>完整输入形状/stride、环境、源码与输入文件指纹、均衡顺序及所有原始样本见下方。报告不自动启用模型优化。</p></section>
-{details}<details><summary>完整 JSON / provenance / 错误记录</summary><pre>{payload}</pre></details></html>"""
+    from ..reporting.render import optimization_html
+
+    return optimization_html(report)
 
 
 def write_reports(report, folder):

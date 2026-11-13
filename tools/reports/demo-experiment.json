@@ -1,0 +1,112 @@
+{
+  "schema_version": 1,
+  "example_only": true,
+  "completed": true,
+  "created_at": "DEMO",
+  "scope": "operator_only",
+  "spec": {
+    "operation": "demo",
+    "reference": "reference",
+    "source": {
+      "kind": "synthetic"
+    },
+    "mode": "exact",
+    "atol": 0,
+    "rtol": 0
+  },
+  "candidates": {
+    "reference": {
+      "status": "available",
+      "correctness": {
+        "passes": true,
+        "outputs": {
+          "output": {
+            "passes": true,
+            "bitwise_exact": true,
+            "finite": true,
+            "elements": 4,
+            "failed_elements": 0,
+            "max_absolute_error": 0,
+            "mean_absolute_error": 0,
+            "relative_l2": 0,
+            "cosine_similarity": 1
+          }
+        }
+      },
+      "timing": {
+        "cuda_event": {
+          "median_ms": 1,
+          "p90_ms": 1,
+          "samples_ms": [
+            1,
+            1,
+            1,
+            1
+          ]
+        },
+        "synchronized_wall": {
+          "median_ms": 1,
+          "p90_ms": 1,
+          "samples_ms": [
+            1,
+            1,
+            1,
+            1
+          ]
+        }
+      },
+      "memory": {
+        "incremental_peak_bytes": 1048576
+      },
+      "speedup_vs_reference": 1.0
+    },
+    "candidate": {
+      "status": "available",
+      "correctness": {
+        "passes": true,
+        "outputs": {
+          "output": {
+            "passes": true,
+            "bitwise_exact": true,
+            "finite": true,
+            "elements": 4,
+            "failed_elements": 0,
+            "max_absolute_error": 0,
+            "mean_absolute_error": 0,
+            "relative_l2": 0,
+            "cosine_similarity": 1
+          }
+        }
+      },
+      "timing": {
+        "cuda_event": {
+          "median_ms": 0.5,
+          "p90_ms": 0.5,
+          "samples_ms": [
+            0.5,
+            0.5,
+            0.5,
+            0.5
+          ]
+        },
+        "synchronized_wall": {
+          "median_ms": 0.5,
+          "p90_ms": 0.5,
+          "samples_ms": [
+            0.5,
+            0.5,
+            0.5,
+            0.5
+          ]
+        }
+      },
+      "memory": {
+        "incremental_peak_bytes": 1048576
+      },
+      "speedup_vs_reference": 2.0
+    }
+  },
+  "warnings": [
+    "仅用于展示模板交互的示例数据，不是测量或性能证据。"
+  ]
+}

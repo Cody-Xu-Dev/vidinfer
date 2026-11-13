@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "title": "示例 · 推理分析与优化",
+  "note": "全部为模板示例数据，不是 H3 的真实测量结果。",
+  "inferences": [
+    {
+      "name": "示例推理",
+      "trace": "demo-trace.json",
+      "summary": "demo-summary.json",
+      "scope": "示例：一次前向"
+    }
+  ],
+  "experiments": [
+    {
+      "name": "示例优化",
+      "results": "demo-experiment.json",
+      "hypothesis": "展示同输入对照、数值验收与报告交互。"
+    }
+  ],
+  "evidence": [
+    {
+      "level": "完整 Block",
+      "status": "pending",
+      "note": "示例没有真实验证证据。"
+    },
+    {
+      "level": "完整去噪 / 质量",
+      "status": "pending",
+      "note": "不因单算子表格通过而自动通过。"
+    }
+  ]
+}

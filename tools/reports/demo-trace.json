@@ -1,0 +1,33 @@
+{
+  "traceEvents": [
+    {
+      "name": "demo_attention",
+      "cat": "kernel",
+      "ph": "X",
+      "ts": 1000,
+      "dur": 6000,
+      "args": {
+        "device": 0,
+        "stream": 1
+      }
+    },
+    {
+      "name": "demo_gemm",
+      "cat": "kernel",
+      "ph": "X",
+      "ts": 8000,
+      "dur": 3000,
+      "args": {
+        "device": 0,
+        "stream": 1
+      }
+    },
+    {
+      "name": "demo/block_00",
+      "cat": "gpu_user_annotation",
+      "ph": "X",
+      "ts": 1000,
+      "dur": 10000
+    }
+  ]
+}

@@ -29,7 +29,18 @@ def export(destination):
             if (
                 path.is_file()
                 and "__pycache__" not in path.parts
-                and path.suffix in (".py", ".cpp", ".cu", ".md", ".yml", ".json")
+                and path.suffix
+                in (
+                    ".py",
+                    ".cpp",
+                    ".cu",
+                    ".md",
+                    ".yml",
+                    ".json",
+                    ".html",
+                    ".css",
+                    ".js",
+                )
             ):
                 if path.name == "codex-dev-notes.md":
                     continue
