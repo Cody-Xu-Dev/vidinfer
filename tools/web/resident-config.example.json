@@ -1,0 +1,8 @@
+{
+  "control": "/mnt/nas/project/profiling/resident_h3",
+  "checkpoint": "/mnt/nas/project/weights_official",
+  "package_path": "/mnt/nas/project/framework/src",
+  "text_cache": "/mnt/nas/project/captures/text_condition.pt",
+  "adaln_cache": "/mnt/nas/project/cache/adaln_h3_diffusers",
+  "cached_prompt": "Replace with the exact prompt recorded in your text cache."
+}

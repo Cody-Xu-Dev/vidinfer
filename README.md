@@ -4,7 +4,19 @@ Python 推理调度 + C++/CUDA 热点算子的视频生成研究框架。当前�
 
 提供独立权重加载、常驻 Session、文本编码与缓存、Transformer 去噪、视频/音频 VAE 解码及 MP4/WAV 导出。目标是把模型语义、设备执行和请求生命周期分开，逐步验证复用于其他视频模型的边界。
 
-这是研究实现，尚无 HTTP 服务、多卡调度、其他视频模型或 NPU 后端。不要把 CUDA 算子注册接口理解为所有网络算子都已具备跨设备实现。
+这是研究实现，提供本机/SSH 隧道使用的实时推理界面，尚无公开生产服务、多卡调度、其他视频模型或 NPU 后端。不要把 CUDA 算子注册接口理解为所有网络算子都已具备跨设备实现。
+
+## 实时推理界面
+
+```bash
+# 不加载模型，查看明确标注的模拟进度
+vidinfer serve --demo --workspace ./runtime/ui-demo
+
+# 在 GPU 机器上运行；第一次提交加载模型，后续复用 Session
+vidinfer serve --checkpoint /mnt/nas/models/MiniMax-H3 --workspace /mnt/nas/vidinfer
+```
+
+打开 `http://127.0.0.1:7860/`，可提交/取消任务、实时查看各阶段 Wall 时间和已完成前向的 CUDA Event 时间，完成后预览视频。远程访问与常驻模型桥接见[实时界面说明](docs/实时推理界面.md)。
 
 ## 安装
 

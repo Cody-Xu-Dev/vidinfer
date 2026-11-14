@@ -289,9 +289,12 @@ class H3Adapter:
         prepared 是统一 Adapter 接口的一部分；本方法实际使用计划中的模型视图。
         每次新建采样状态，避免不同 seed/请求复用同一个采样器的可变状态。
         """
-        condition = self.condition
-        if condition is None or ctx.request.prompt != self.prompt:
-            condition = self.stages.encode(ctx.request.prompt, ctx)
+        with ctx.stage("text_condition"):
+            condition = self.condition
+            if condition is None or ctx.request.prompt != self.prompt:
+                condition = self.stages.encode(ctx.request.prompt, ctx)
+            else:
+                ctx.metadata["text_cache_hit"] = True
         # 1. 创建请求专用 Pipeline 外壳，注入已经准备好的模型视图。
         pipeline = self.group.init_pipeline(str(self.checkpoint))
         pipeline.register_components(
@@ -345,14 +348,18 @@ class H3Adapter:
             # 4. 进入官方采样循环：准备噪声 → 多次 DiT/采样更新 → 输出 latent。
             r = ctx.request
             ctx.metadata["active_stage"] = "denoise"
-            raw = pipeline(
-                state=state,
-                height=r.height,
-                width=r.width,
-                num_frames=r.frames,
-                num_inference_steps=r.steps,
-                generator=generator,
-            )
+            with ctx.stage("denoise"):
+                raw = pipeline(
+                    state=state,
+                    height=r.height,
+                    width=r.width,
+                    num_frames=r.frames,
+                    num_inference_steps=r.steps,
+                    generator=generator,
+                )
+                # 仅在完整去噪边界等待；不在每个 DiT 前向同步。
+                # 使这个阶段的 Wall 截止于设备完成，供实时界面明确展示。
+                torch.cuda.current_stream().synchronize()
             if r.output_type == "video":
                 ctx.resources["decoded"] = self.stages.decode(raw, ctx)
             return raw
@@ -380,10 +387,11 @@ class H3Adapter:
 
             ctx.metadata["active_stage"] = "export"
             started = time.perf_counter()
-            media = write_media(
-                ctx.resources.pop("decoded"),
-                self.config.output_directory(ctx.request.request_id),
-            )
+            with ctx.stage("export"):
+                media = write_media(
+                    ctx.resources.pop("decoded"),
+                    self.config.output_directory(ctx.request.request_id),
+                )
             outputs.update(media)
             ctx.metadata.setdefault("stages", {})["export"] = {
                 "wall_s": time.perf_counter() - started

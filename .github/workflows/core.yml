@@ -26,4 +26,5 @@ jobs:
                   assert 'vidinfer/kernels/' + name in package.namelist()
               for name in ('base.html', 'inference.html', 'optimization.html', 'index.html', 'style.css', 'interactive.js'):
                   assert 'vidinfer/reporting/templates/' + name in package.namelist()
+              assert 'vidinfer/web/assets/index.html' in package.namelist()
           PY

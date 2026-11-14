@@ -6,6 +6,7 @@
 
 from dataclasses import dataclass, field
 from concurrent.futures import CancelledError
+from contextlib import contextmanager
 from threading import Event, RLock
 from types import MappingProxyType
 from typing import Any, Mapping
@@ -102,6 +103,37 @@ class RequestContext:
         self.device_context = None
         self.completion = None
         self.cleaned = False
+        self._stage_stack = []
+        self.metadata["stage_history"] = []
+
+    @contextmanager
+    def stage(self, name):
+        """记录可实时读取的 CPU Wall 区间；嵌套阶段不相加，不隐式同步 GPU。"""
+        started = time.perf_counter()
+        with self._lock:
+            record = dict(
+                name=name,
+                started_at=started,
+                finished_at=None,
+                status="running",
+                parent=self._stage_stack[-1]["name"] if self._stage_stack else None,
+            )
+            self.metadata["stage_history"].append(record)
+            self._stage_stack.append(record)
+        try:
+            yield
+        except BaseException as exc:
+            with self._lock:
+                record["status"] = (
+                    "cancelled" if isinstance(exc, CancelledError) else "failed"
+                )
+            raise
+        finally:
+            with self._lock:
+                record["finished_at"] = time.perf_counter()
+                if record["status"] == "running":
+                    record["status"] = "completed"
+                self._stage_stack.pop()
 
     def retain(self, *objects):
         """让这些对象至少活到请求确认设备完成并执行 release() 为止。"""
@@ -122,13 +154,27 @@ class RequestContext:
     def snapshot(self):
         """给调用者一份轻量进度快照，不在这里等待 GPU。"""
         with self._lock:
+            now = time.perf_counter()
             return dict(
                 request_id=self.request.request_id,
                 phase=self.phase,
                 steps_done=self.steps_done,
                 cleaned=self.cleaned,
                 cancel_requested=self.cancel_event.is_set(),
-                stage=self.metadata.get("active_stage"),
+                stage=self._stage_stack[-1]["name"]
+                if self._stage_stack
+                else self.metadata.get("active_stage"),
+                elapsed_s=(self.finished_at or now) - self.started_at
+                if self.started_at is not None
+                else 0,
+                queue_s=(self.started_at or now) - self.submitted_at,
+                stage_history=[
+                    dict(
+                        record,
+                        elapsed_s=(record["finished_at"] or now) - record["started_at"],
+                    )
+                    for record in self.metadata["stage_history"]
+                ],
             )
 
     def release(self):

@@ -52,7 +52,21 @@ def main():
     )
     workflow.add_argument("--manifest", type=Path, required=True)
     workflow.add_argument("--output", type=Path, required=True)
+    web = sub.add_parser("serve", help="Start a local live inference dashboard")
+    mode = web.add_mutually_exclusive_group(required=True)
+    mode.add_argument("--checkpoint", type=Path)
+    mode.add_argument("--resident-config", type=Path)
+    mode.add_argument("--demo", action="store_true")
+    web.add_argument("--workspace", type=Path, required=True)
+    web.add_argument("--text-cache", type=Path)
+    web.add_argument("--host", choices=("127.0.0.1", "localhost"), default="127.0.0.1")
+    web.add_argument("--port", type=int, default=7860)
     args = parser.parse_args()
+    if args.command == "serve":
+        from .web.server import serve
+
+        serve(args)
+        return
     if args.command == "analyze":
         from .reporting.analysis import analyze_trace
         from .reporting.render import write_inference

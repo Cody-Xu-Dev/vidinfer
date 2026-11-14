@@ -80,17 +80,20 @@ class H3Stages:
         started = time.perf_counter()
         ctx.metadata["active_stage"] = name
         print("VIDINFER_STAGE_BEGIN", name, flush=True)
-        try:
-            return function()
-        finally:
-            # 同步失败时保留 self 的模型拥有者，外层 Engine 会隔离请求。
-            torch.cuda.current_stream().synchronize()
-            ctx.metadata.setdefault("stages", {})[name] = {
-                "wall_s": time.perf_counter() - started,
-                "peak_allocated_bytes": torch.cuda.max_memory_allocated(),
-                "allocated_after_bytes": torch.cuda.memory_allocated(),
-            }
-            print("VIDINFER_STAGE_END", name, ctx.metadata["stages"][name], flush=True)
+        with ctx.stage(name):
+            try:
+                return function()
+            finally:
+                # 同步失败时保留 self 的模型拥有者，外层 Engine 会隔离请求。
+                torch.cuda.current_stream().synchronize()
+                ctx.metadata.setdefault("stages", {})[name] = {
+                    "wall_s": time.perf_counter() - started,
+                    "peak_allocated_bytes": torch.cuda.max_memory_allocated(),
+                    "allocated_after_bytes": torch.cuda.memory_allocated(),
+                }
+                print(
+                    "VIDINFER_STAGE_END", name, ctx.metadata["stages"][name], flush=True
+                )
 
     def _load_text(self):
         import torch

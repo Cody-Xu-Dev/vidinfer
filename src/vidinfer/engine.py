@@ -175,7 +175,8 @@ class Engine:
                         ctx.metadata.update(self.backend.completed_metadata(ctx))
                     # 4. 回传/整理也可能提交设备工作，必须单独确认完成。
                     device_done = False
-                    outputs = self.adapter.finalize(raw, ctx)
+                    with ctx.stage("finalize"):
+                        outputs = self.adapter.finalize(raw, ctx)
                     self.backend.drain(ctx)
                     device_done = True
                     ctx.metadata.update(
